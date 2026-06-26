@@ -1,0 +1,2 @@
+#!/bin/sh
+vpx commitlint --edit "$1"

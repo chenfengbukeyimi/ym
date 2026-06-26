@@ -1,16 +1,16 @@
 {
   "name": "ym",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A starter for creating a TypeScript package.",
-  "homepage": "https://github.com/author/library#readme",
+  "homepage": "hhttps://github.com/chenfengbukeyimi/ym#readme",
   "bugs": {
-    "url": "https://github.com/author/library/issues"
+    "url": "hhttps://github.com/chenfengbukeyimi/ym/issues"
   },
   "license": "MIT",
   "author": "Author Name <author.name@mail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/author/library.git"
+    "url": "git+hhttps://github.com/chenfengbukeyimi/ym.git"
   },
   "files": [
     "dist"
@@ -29,14 +29,24 @@
     "test": "vp test",
     "check": "vp check",
     "prepublishOnly": "vp run build",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "word:check": "cspell lint **/*.{ts,md,json} --no-progress --config ./cspell.config.mts"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.1.0",
+    "@commitlint/config-conventional": "^21.1.0",
     "@types/node": "^25.6.2",
     "@typescript/native-preview": "7.0.0-dev.20260509.2",
+    "@vitest/coverage-v8": "4.1.9",
     "bumpp": "^11.1.0",
+    "cspell": "^10.0.1",
     "typescript": "^6.0.3",
     "vite-plus": "catalog:"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-git"
+    }
   },
   "devEngines": {
     "packageManager": {

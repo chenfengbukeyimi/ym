@@ -1,0 +1,88 @@
+name: Vite+ Pack
+description: 库包构建产物，并校验产物.
+
+# 参数默认配置
+outputs:
+  package-name:
+    description: 库包名称
+    value: ${{ steps.package_info.outputs.name }}
+  package-version:
+    description: 库包版本
+    value: ${{ steps.package_info.outputs.version }}
+  artifact-name:
+    description: 库包产物名称
+    value: ${{ steps.pack.outputs.artifact-name }}
+  environment:
+    description: 构建环境
+    value: ${{ github.event_name }}
+
+runs:
+  using: composite
+  steps:
+    - name: Ensure Dependencies
+      run: |
+        if [ ! -d "node_modules" ]; then
+          echo "⚠️ node_modules not found. Running vp install..."
+          vp install
+        fi
+      shell: bash
+
+    - name: Extract Package Info
+      id: package_info
+      run: |
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
+        PACKAGE_VERSION=$(node -p "require('./package.json').version")
+        echo "name=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
+        echo "version=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+        echo "📦 Packing ${PACKAGE_NAME}@${PACKAGE_VERSION}"
+      shell: bash
+
+    - name: Run VitePack
+      run: vp pack
+      shell: bash
+
+    # 强校验产物
+    - name: Verify Dist
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "❌ Error: dist directory not found after vp pack"
+          exit 1
+        fi
+
+        if [ ! -f "dist/index.mjs" ]; then
+          echo "❌ Error: dist/index.mjs not found"
+          exit 1
+        fi
+      shell: bash
+
+    - name: Tar Dist to Artifact
+      run: |
+        tar -czvf dist.tar.gz dist
+        echo "📦 Tarred dist to dist.tar.gz"
+      shell: bash
+
+    # 查找构建产物（根目录下 .tgz 文件）
+    - name: Find and Upload Tarball
+      id: pack
+      run: |
+        # 查找生成的 tarball (支持 npm pack 或 vite lib 模式)
+        TARBALL=$(ls *.tar.gz | head -n 1)
+
+        if [ -z "$TARBALL" ]; then
+          echo "❌ Error: No .tar.gz file found after packing."
+          exit 1
+        fi
+
+        ARTIFACT_NAME="${PACKAGE_NAME}-${PACKAGE_VERSION}"
+        echo "📤 Uploading ${TARBALL} as ${ARTIFACT_NAME}"
+
+        # 使用 GitHub CLI 或 API 上传，或者直接用 upload-artifact
+        echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Upload Packed Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.pack.outputs.artifact-name }}
+        path: '*.tgz'
+        # 库包保留时间长一点，方便追溯
+        retention-days: 14

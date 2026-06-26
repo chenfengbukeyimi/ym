@@ -1,3 +1,5 @@
 export function fn() {
-  return "Hello, tsdown!";
+  const person = 1;
+  console.log(person);
+  return 'Hello, tsdown!';
 }

@@ -1,0 +1,31 @@
+name: Vite+ Check
+description: 代码质量格式，单词拼写检查。
+
+inputs:
+  working-directory:
+    description: 工作目录
+    default: .
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Ensure Dependencies Installed
+      run: |
+        if [ ! -d "node_modules" ]; then
+          echo "⚠️ node_modules not found, running vp install..."
+          vp install
+        else
+          echo "✅ node_modules exists."
+        fi
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Lint & Format & TypeCheck
+      run: vp check
+      shell: bash
+
+    - name: Cspell
+      run: vp exec cspell lint **/*.{ts,md,json} --no-progress --config ./cspell.config.mts
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}

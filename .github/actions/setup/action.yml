@@ -1,0 +1,31 @@
+name: Vite+ Setup
+description: 安装环境命令，安装项目依赖。
+
+# 参数配置
+inputs:
+  node-version:
+    description: Node版本
+    default: '24'
+    required: false
+  working-directory:
+    description: 工作目录
+    default: '.'
+    required: false
+  cache:
+    description: 环境缓存
+    default: 'true'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: setup vite+
+      uses: voidzero-dev/setup-vp@v1
+      with:
+        cache: ${{ inputs.cache }}
+        node-version: ${{ inputs.node-version }}
+
+    - name: install dependencies
+      run: vp install --frozen-lockfile
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}

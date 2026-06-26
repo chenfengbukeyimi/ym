@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  lint:
+    name: Lint Job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Install Environment
+        uses: ./.github/actions/setup
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Run Lint
+        uses: ./.github/actions/lint
+
+  test:
+    name: Test Job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Install Environment
+        uses: ./.github/actions/setup
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Run Test
+        uses: ./.github/actions/test
+
+  pack:
+    name: Pack Job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Install Environment
+        uses: ./.github/actions/setup
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Run Pack
+        id: pack
+        uses: ./.github/actions/pack
+        with:
+          environment: 'development'
+      - name: Verify Pack Metadata
+        id: meta
+        run: |
+          echo "✅ Pack successful"
+          echo "Pack Artifact: ${{ steps.pack.outputs.artifact-name }}"
+        shell: bash

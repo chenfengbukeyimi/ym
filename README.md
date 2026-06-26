@@ -1,23 +1,37 @@
-# vite-plus-starter
+# YM 库包
 
-A starter for creating a Vite Plus project.
+自定义功能集成封装。
 
-## Development
+## 开发
 
-- Install dependencies:
+- 依赖安装
 
 ```bash
 vp install
 ```
 
-- Run the unit tests:
+- 测试用例
 
 ```bash
 vp test
 ```
 
-- Build the library:
+- 打包成库
 
 ```bash
 vp pack
+```
+
+## 案例
+
+- 测试页面
+
+```bash
+vp dev
+```
+
+- 页面打包
+
+```bash
+vp build
 ```

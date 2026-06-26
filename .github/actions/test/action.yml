@@ -1,0 +1,70 @@
+name: Vite+ Test
+description: 单元测试用例.
+
+# 参数默认配置
+inputs:
+  working-directory:
+    description: 工作目录
+    required: false
+    default: .
+  coverage-enabled:
+    description: 覆盖率开关
+    required: false
+    default: 'true'
+  junit-enabled:
+    description: 测试报告
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    # 依赖前置: 如果调用方没有运行 setup，这里兜底
+    - name: Ensure Dependencies Installed
+      run: |
+        if [ ! -d "node_modules" ]; then
+          echo "⚠️ node_modules not found, running vp install..."
+          vp install
+        else
+          echo "✅ node_modules exists."
+        fi
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    # 运行测试（CI 模式 + 报告）
+    - name: Run Vitest
+      run: |
+        # 构建命令
+        CMD="vp test --run"
+
+        # 启用覆盖率
+        if [ "${{ inputs.coverage-enabled }}" = "true" ]; then
+          CMD="$CMD --coverage"
+        fi
+
+        # 启用 JUnit 报告
+        if [ "${{ inputs.junit-enabled }}" = "true" ]; then
+          CMD="$CMD --reporter=junit --outputFile=test-results.xml"
+        fi
+
+        echo "Executing: $CMD"
+        eval $CMD
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    # 上传覆盖率（可选，通常给 Codecov 用）
+    - name: Upload coverage reports
+      if: inputs.coverage-enabled == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-${{ github.sha }}
+        path: ${{ inputs.working-directory }}/coverage
+        retention-days: 7
+
+    # 上传 JUnit 报告（关键：让 GitHub 显示测试结果）
+    - name: Publish Test Results
+      if: inputs.junit-enabled == 'true' && always()
+      uses: mikepenz/action-junit-report@v4
+      with:
+        report_paths: ${{ inputs.working-directory }}/test-results.xml
+        include_passed: true
