@@ -18,5 +18,7 @@ export default defineConfig({
     '/project-words.txt',
     'pnpm-lock.yaml',
     'pnpm-workspace.yaml',
+    // 测试报告
+    'coverage',
   ],
 });
