@@ -22,7 +22,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
 
     - name: Lint & Format & TypeCheck
-      run: vp check
+      run: vp check --fix
       shell: bash
 
     - name: Cspell
